@@ -1,8 +1,416 @@
-ESCAPE3D
-Loading...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Escape 3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky1:#2f8fe8; --sky2:#9fd6ff;
+  --yellow:#ffc928; --orange:#f5821f; --green:#2ecc2f; --blue:#1d8cf0;
+  --navy:#0b2a5b; --road:#b9c3cf;
+  --font:'Lilita One','Arial Rounded MT Bold',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:var(--font);color:#fff;user-select:none}
+body{background:linear-gradient(#2a86df,#8ccbff 70%);
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button{font-family:inherit;color:inherit;border:0;cursor:pointer}
 
-0+
-ESCAPE3D
-⚙Settings 🔊Sound ★Rate Us
-▶ PLAY ▦ LEVELS 👕 SKINS
-ADS Remove Ads
+/* ---------- scene ---------- */
+.scene{position:fixed;inset:0;overflow:hidden;background:linear-gradient(180deg,var(--sky1),var(--sky2))}
+.cloud{position:absolute;width:220px;height:70px;border-radius:50px;background:#fff;opacity:.9;
+  box-shadow:60px -25px 0 10px #fff,-40px 10px 0 -5px #fff;filter:blur(1px);animation:drift 40s linear infinite}
+.c1{top:18%;left:-10%}.c2{top:36%;left:60%;transform:scale(.7);animation-duration:55s}
+.c3{top:8%;left:35%;transform:scale(.5);opacity:.7;animation-duration:70s}
+@keyframes drift{to{translate:130vw 0}}
+
+.ring{position:absolute;left:50%;top:34%;width:min(34vw,220px);aspect-ratio:1;translate:-50% 0;
+  border-radius:50%;border:clamp(14px,3vw,26px) solid var(--orange);
+  box-shadow:inset 0 0 0 3px #ffb35c,0 6px 0 #c4570d}
+.road{position:absolute;left:50%;bottom:0;width:min(90vw,520px);height:48%;translate:-50% 0;
+  background:linear-gradient(#d3dbe4,var(--road));
+  clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)}
+.edge{position:absolute;top:0;bottom:0;width:20%;
+  background:repeating-linear-gradient(180deg,var(--yellow) 0 12%,#222 12% 24%);
+  animation:edge 1.2s linear infinite}
+.edge.left{left:0;clip-path:polygon(60% 0,70% 0,20% 100%,0 100%)}
+.edge.right{right:0;clip-path:polygon(30% 0,40% 0,100% 100%,80% 100%)}
+@keyframes edge{to{background-position:0 60px}}
+
+.ball{position:absolute;left:50%;bottom:16%;width:min(22vw,120px);aspect-ratio:1;translate:-50% 0;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#8fd1ff 0 8%,#2a9bff 30%,#0a55c9 80%);
+  box-shadow:0 22px 20px -8px rgba(0,0,0,.35);animation:roll 1.6s ease-in-out infinite}
+@keyframes roll{50%{translate:-50% -10px}}
+
+/* ---------- screens ---------- */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;
+  opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s}
+.screen.active{opacity:1;visibility:visible}
+
+/* ---------- logo ---------- */
+.logo{display:flex;flex-direction:column;align-items:center;line-height:.85;margin-top:clamp(24px,7vh,70px);
+  font-weight:400;transform:rotate(-3deg);animation:pop .8s cubic-bezier(.2,1.6,.4,1) both}
+.logo span{-webkit-text-stroke:clamp(6px,1.4vw,10px) var(--navy);paint-order:stroke fill;
+  filter:drop-shadow(0 6px 0 rgba(8,30,80,.55))}
+.l1{font-size:clamp(56px,13vw,110px);color:#fff}
+.l2{font-size:clamp(80px,19vw,160px);color:var(--yellow);margin-top:-.05em}
+.logo.small .l1{font-size:clamp(44px,8vw,80px)}
+.logo.small .l2{font-size:clamp(64px,12vw,120px)}
+@keyframes pop{from{scale:.3;opacity:0}}
+
+/* ---------- splash loader ---------- */
+#splash .loader{position:absolute;bottom:9%;width:min(60vw,360px);text-align:center;
+  text-shadow:0 2px 0 rgba(0,0,0,.4);letter-spacing:.04em}
+.bar{margin-top:8px;height:18px;border-radius:12px;background:#0a2a60;border:3px solid #1a4a96;overflow:hidden}
+#barFill{height:100%;width:0;border-radius:10px;background:linear-gradient(#6cc8ff,#1b8cf0);transition:width .2s}
+
+/* ---------- home ---------- */
+.coins{position:absolute;top:16px;right:16px;display:flex;align-items:center;gap:12px;
+  padding:4px 6px 4px 4px;border-radius:30px;background:linear-gradient(#ffd45c,#d28a0a);
+  box-shadow:0 3px 0 #8a5400;font-size:22px}
+.coins span{min-width:48px;text-align:center;background:rgba(80,40,0,.55);border-radius:14px;padding:0 10px}
+.coin{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3a8,#ffb800 60%,#b87000);
+  border:2px solid #fff3b0;display:inline-block}
+.plus{width:30px;height:30px;border-radius:50%;background:var(--green);font-size:24px;line-height:28px;box-shadow:0 2px 0 #167a17}
+
+.side{position:absolute;left:14px;top:22%;display:flex;flex-direction:column;gap:14px}
+.round{display:flex;flex-direction:column;align-items:center;background:none;gap:2px;font-size:13px;
+  text-shadow:0 1px 0 #0a2a60,0 0 4px #0a2a60}
+.round span{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;font-size:28px;
+  background:radial-gradient(circle at 35% 25%,#5db8ff,#1366d6);border:3px solid #fff;box-shadow:0 4px 0 #0b3d8f}
+.round.off span{filter:grayscale(1)}
+
+.menu{margin-top:auto;margin-bottom:12vh;width:min(78vw,360px);display:flex;flex-direction:column;gap:16px;z-index:2}
+.btn{display:flex;align-items:center;justify-content:center;gap:14px;height:62px;border-radius:16px;
+  font-size:30px;letter-spacing:.04em;text-shadow:0 3px 0 rgba(0,0,0,.3);
+  border:3px solid rgba(255,255,255,.55);transition:transform .08s,box-shadow .08s}
+.btn.big{height:80px;font-size:42px}
+.btn b{font-weight:400}
+.btn.green{background:linear-gradient(#5cf24f,#1fb61f);box-shadow:0 6px 0 #0f7a12}
+.btn.blue{background:linear-gradient(#4db4ff,#1378e6);box-shadow:0 6px 0 #0a4aa8}
+.btn.orange{background:linear-gradient(#ffb23d,#f06a0a);box-shadow:0 6px 0 #a64400}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+
+.noads{position:absolute;right:14px;bottom:3vh;display:flex;align-items:center;gap:8px;
+  padding:6px 14px 6px 6px;border-radius:14px;background:#103a85;border:2px solid #2a6ad0;font-size:18px}
+.noads i{font-style:normal;font-size:11px;display:grid;place-items:center;width:30px;height:30px;
+  border-radius:50%;border:3px solid #e33;background:#fff;color:#222}
+
+#toast{position:fixed;left:50%;bottom:12%;translate:-50% 20px;padding:10px 20px;border-radius:20px;
+  background:rgba(8,30,80,.9);opacity:0;pointer-events:none;transition:.3s;z-index:9}
+#toast.show{opacity:1;translate:-50% 0}
+
+/* wide / landscape: menu on the right like the mockup */
+@media (min-width:760px){
+  .menu{position:absolute;left:22%;bottom:12%;margin:0}
+  .logo{margin-top:4vh}
+  #home .logo{position:absolute;left:19%;top:2vh;margin:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- levels + game ---------- */
+.panelscreen{justify-content:center;gap:22px;background:rgba(5,25,70,.88)}
+.panelscreen h2{font-weight:400;font-size:36px;letter-spacing:.05em}
+#grid{display:grid;grid-template-columns:repeat(4,64px);gap:12px}
+.lv{height:64px;border-radius:12px;font-size:28px;background:linear-gradient(#7d93b5,#546a8c);box-shadow:0 4px 0 #2d3f5e}
+.lv.cur{background:linear-gradient(#5cf24f,#1fb61f);box-shadow:0 4px 0 #0f7a12}
+.lv.lock{opacity:.55;cursor:default}
+.btn.sm{height:54px;font-size:24px;width:min(60vw,240px)}
+.btn.grey{background:linear-gradient(#8fa2c0,#5c7090);box-shadow:0 6px 0 #34465f}
+#game{background:#8ccbff}
+#cv{position:absolute;inset:0}
+.hud{position:absolute;top:14px;left:14px;right:14px;display:flex;align-items:center;gap:14px;font-size:24px;
+  text-shadow:0 2px 0 #0a2a60;pointer-events:none}
+.pbtn{pointer-events:auto;width:46px;height:46px;border-radius:50%;background:linear-gradient(#5db8ff,#1366d6);
+  border:3px solid #fff;font-size:20px;box-shadow:0 3px 0 #0b3d8f}
+.arrow{position:absolute;bottom:5vh;width:84px;height:84px;border-radius:50%;font-size:34px;touch-action:none;
+  background:rgba(60,80,110,.6);border:3px solid rgba(255,255,255,.7)}
+.arrow.l{left:5vw}.arrow.r{right:5vw}
+.arrow:active{background:rgba(30,50,90,.85)}
+.modal{position:absolute;inset:0;display:none;place-items:center;background:rgba(0,10,40,.6)}
+.modal.show{display:grid}
+.card{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 22px;width:min(84vw,340px);
+  border-radius:20px;background:linear-gradient(#123a82,#0a2058);border:3px solid #2a6ad0}
+.card h3{font-weight:400;font-size:34px;letter-spacing:.04em}
+.card .stars{font-size:44px;color:#ffc928;text-shadow:0 3px 0 #a86a00}
+.card p{font-size:26px}
+</style>
+</head>
+<body>
+
+  <!-- Shared background scene: sky + ring + road + ball -->
+  <div class="scene" aria-hidden="true">
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+    <div class="ring"></div>
+    <div class="road"><div class="edge left"></div><div class="edge right"></div></div>
+    <div class="ball"></div>
+  </div>
+
+  <!-- ========== SPLASH SCREEN ========== -->
+  <section id="splash" class="screen active">
+    <h1 class="logo"><span class="l1">ESCAPE</span><span class="l2">3D</span></h1>
+    <div class="loader">
+      <p id="loadText">Loading...</p>
+      <div class="bar"><div id="barFill"></div></div>
+    </div>
+  </section>
+
+  <!-- ========== HOME SCREEN ========== -->
+  <section id="home" class="screen">
+    <div class="coins"><i class="coin"></i><span id="coinCount">0</span><button class="plus" aria-label="Get coins">+</button></div>
+
+    <h1 class="logo small"><span class="l1">ESCAPE</span><span class="l2">3D</span></h1>
+
+    <nav class="side">
+      <button class="round" data-act="settings"><span>&#9881;</span><small>Settings</small></button>
+      <button class="round" id="soundBtn" data-act="sound"><span id="soundIcon">&#128266;</span><small>Sound</small></button>
+      <button class="round" data-act="rate"><span>&#9733;</span><small>Rate Us</small></button>
+    </nav>
+
+    <div class="menu">
+      <button class="btn green big" data-act="play"><b>&#9654;</b> PLAY</button>
+      <button class="btn blue" data-act="levels"><b>&#9638;</b> LEVELS</button>
+      <button class="btn orange" data-act="skins"><b>&#128085;</b> SKINS</button>
+    </div>
+
+    <button class="noads" data-act="removeads"><i>ADS</i> Remove Ads</button>
+  </section>
+
+  <!-- ========== LEVEL SELECT ========== -->
+  <section id="levels" class="screen panelscreen">
+    <h2>SELECT LEVEL</h2>
+    <div id="grid"></div>
+    <button class="btn blue sm" data-act="home">BACK</button>
+  </section>
+
+  <!-- ========== GAME ========== -->
+  <section id="game" class="screen">
+    <canvas id="cv"></canvas>
+    <div class="hud"><button id="pauseBtn" class="pbtn" aria-label="Pause">II</button><span id="lvlTxt">Level 1</span></div>
+    <button id="bl" class="arrow l" aria-label="Left">&#9664;</button>
+    <button id="br" class="arrow r" aria-label="Right">&#9654;</button>
+    <div id="modal" class="modal"></div>
+  </section>
+
+  <div id="toast" role="status"></div>
+<script>
+// ---------- helpers ----------
+const $ = (id) => document.getElementById(id);
+const store = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+}
+
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+// ---------- splash: fake loading, then go to home ----------
+function runSplash() {
+  let p = 0;
+  const timer = setInterval(() => {
+    p = Math.min(100, p + Math.random() * 14 + 4);
+    $('barFill').style.width = p + '%';
+    if (p >= 100) {
+      clearInterval(timer);
+      $('loadText').textContent = 'Ready!';
+      setTimeout(() => show('home'), 400);
+    }
+  }, 220);
+}
+
+// ---------- home ----------
+let soundOn = store.get('sound', true);
+function renderHome() {
+  $('coinCount').textContent = store.get('coins', 0);
+  $('soundBtn').classList.toggle('off', !soundOn);
+  $('soundIcon').textContent = soundOn ? '\u{1F50A}' : '\u{1F507}';
+}
+
+const actions = {
+  play:      () => toast('Starting Level 1...'),
+  levels:    () => toast('Levels screen coming soon'),
+  skins:     () => toast('Skins screen coming soon'),
+  settings:  () => toast('Settings coming soon'),
+  rate:      () => toast('Thanks for rating!'),
+  removeads: () => toast('Remove Ads coming soon'),
+  sound:     () => { soundOn = !soundOn; store.set('sound', soundOn); renderHome(); }
+};
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act]');
+  if (b) actions[b.dataset.act]?.();
+  if (e.target.closest('.plus')) toast('Coin shop coming soon');
+});
+
+renderHome();
+runSplash();
+
+// ================= GAME =================
+const cv = $('cv'), cx = cv.getContext('2d');
+let W, H, G = null, raf = 0, lastT = 0, cur = 1;
+let maxLv = store.get('maxLevel', 1);
+const held = { l: 0, r: 0 };
+const F = 260;
+
+function size() {
+  const d = devicePixelRatio || 1;
+  W = innerWidth; H = innerHeight;
+  cv.width = W * d; cv.height = H * d;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  cx.setTransform(d, 0, 0, d, 0, 0);
+}
+addEventListener('resize', size); size();
+
+function buildGrid() {
+  let h = '';
+  for (let i = 1; i <= 10; i++) {
+    const lock = i > maxLv;
+    h += '<button class="lv' + (i === maxLv ? ' cur' : '') + (lock ? ' lock' : '') + '" data-lv="' + i + '">' + (lock ? '&#128274;' : i) + '</button>';
+  }
+  $('grid').innerHTML = h;
+}
+
+function startLevel(n) {
+  cur = n;
+  const gap = Math.max(70, 140 - n * 7), obs = [];
+  const len = 2500 + n * 500;
+  for (let z = 500; z < len - 300; z += gap + Math.random() * 60) obs.push({ z, x: Math.random() * 1.5 - 0.75 });
+  G = { z: 0, bx: 0, state: 'run', len, obs };
+  $('lvlTxt').textContent = 'Level ' + n;
+  $('modal').classList.remove('show');
+  show('game');
+  cancelAnimationFrame(raf);
+  lastT = performance.now();
+  raf = requestAnimationFrame(loop);
+}
+
+function modal(html) { $('modal').innerHTML = '<div class="card">' + html + '</div>'; $('modal').classList.add('show'); }
+const btn = (c, a, t) => '<button class="btn ' + c + ' sm" data-act="' + a + '">' + t + '</button>';
+
+function end(type) {
+  G.state = type;
+  held.l = held.r = 0;
+  if (type === 'over') {
+    modal('<h3>GAME OVER</h3><p>You Crashed!</p>' + btn('green', 'retry', 'RETRY') + btn('blue', 'home', 'HOME'));
+  } else {
+    store.set('coins', store.get('coins', 0) + 100);
+    if (cur === maxLv && cur < 10) { maxLv++; store.set('maxLevel', maxLv); }
+    modal('<div class="stars">&#9733;&#9733;&#9733;</div><h3>LEVEL COMPLETE!</h3><p>+100 coins</p>' +
+      (cur < 10 ? btn('green', 'next', 'NEXT LEVEL') : '') + btn('blue', 'home', 'HOME'));
+  }
+}
+
+function loop(now) {
+  const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+  if (G.state === 'run') {
+    G.z += (280 + cur * 18) * dt;
+    G.bx += (held.r - held.l) * 1.7 * dt;
+    if (Math.abs(G.bx) > 1.05) end('over');
+    else if (G.obs.some(o => Math.abs(o.z - G.z) < 14 && Math.abs(o.x - G.bx) < 0.3)) end('over');
+    else if (G.z >= G.len) end('win');
+  }
+  draw();
+  raf = requestAnimationFrame(loop);
+}
+
+function draw() {
+  const hz = H * 0.34, gy = H * 0.8, RW = Math.min(W * 0.44, H * 0.42), mid = W / 2;
+  const fs = dz => F / (F + dz), Y = dz => hz + (gy - hz) * fs(dz), HW = dz => RW * fs(dz);
+  const g = cx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#2f8fe8'); g.addColorStop(1, '#a9dcff');
+  cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+  cx.fillStyle = 'rgba(255,255,255,.85)';
+  [[.15,.12,70],[.7,.2,55],[.45,.07,40],[.9,.4,60]].forEach(c => {
+    cx.beginPath(); cx.ellipse(c[0] * W, c[1] * H, c[2] * 1.6, c[2] * .5, 0, 0, 7); cx.fill();
+  });
+
+  const quad = (y1, w1, y2, w2, xo1, xo2, col) => {
+    cx.fillStyle = col; cx.beginPath();
+    cx.moveTo(mid + xo1 - w1, y1); cx.lineTo(mid + xo1 + w1, y1);
+    cx.lineTo(mid + xo2 + w2, y2); cx.lineTo(mid + xo2 - w2, y2); cx.fill();
+  };
+  const base = -(G.z % 50) - 100;
+  for (let k = 39; k >= 0; k--) {
+    const a = base + k * 50, b = a + 50, idx = Math.floor((G.z + a) / 50);
+    const yA = Y(a), yB = Y(b), wA = HW(a), wB = HW(b), e = idx % 2 === 0;
+    quad(yA, wA, yB, wB, 0, 0, e ? '#c6cdd7' : '#b4bdc9');
+    const ea = wA * 0.1, eb = wB * 0.1, ec = e ? '#ffc928' : '#222';
+    [-1, 1].forEach(s => {
+      cx.fillStyle = ec; cx.beginPath();
+      cx.moveTo(mid + s * wA, yA); cx.lineTo(mid + s * (wA - ea), yA);
+      cx.lineTo(mid + s * (wB - eb), yB); cx.lineTo(mid + s * wB, yB); cx.fill();
+    });
+  }
+  const dzF = G.len - G.z;
+  if (dzF > -50 && dzF < 2000) {
+    quad(Y(dzF), HW(dzF), Y(dzF + 30), HW(dzF + 30), 0, 0, 'rgba(255,255,255,.85)');
+    cx.strokeStyle = '#f5821f'; cx.lineWidth = Math.max(4, 22 * fs(dzF));
+    cx.beginPath(); cx.arc(mid, Y(dzF), HW(dzF) * 0.9, Math.PI, 0); cx.stroke();
+  }
+  [...G.obs].sort((p, q) => q.z - p.z).forEach(o => {
+    const dz = o.z - G.z;
+    if (dz < -60 || dz > 1800) return;
+    const s = fs(dz), x = mid + o.x * RW * s, y = Y(dz), sz = RW * s * 0.2;
+    cx.fillStyle = '#a8683a'; cx.fillRect(x - sz, y - sz * 1.5, sz * 2, sz * 1.5);
+    cx.fillStyle = '#d9955a'; cx.fillRect(x - sz, y - sz * 1.85, sz * 2, sz * 0.35);
+    cx.strokeStyle = '#5a3516'; cx.lineWidth = Math.max(1, 2 * s);
+    cx.strokeRect(x - sz, y - sz * 1.5, sz * 2, sz * 1.5);
+  });
+  const R = Math.min(W, H * 0.7) * 0.07, bx = mid + G.bx * RW, by = gy - R;
+  cx.fillStyle = 'rgba(0,0,0,.25)'; cx.beginPath(); cx.ellipse(bx, gy + 2, R * 0.9, R * 0.3, 0, 0, 7); cx.fill();
+  const bg = cx.createRadialGradient(bx - R * .35, by - R * .4, R * .1, bx, by, R);
+  bg.addColorStop(0, '#9fd8ff'); bg.addColorStop(.35, '#2a9bff'); bg.addColorStop(1, '#0a55c9');
+  cx.fillStyle = bg; cx.beginPath(); cx.arc(bx, by, R, 0, 7); cx.fill();
+  cx.strokeStyle = 'rgba(255,255,255,.55)'; cx.lineWidth = R * 0.12;
+  cx.beginPath(); cx.arc(bx, by, R * 0.7, G.z * 0.05, G.z * 0.05 + 1); cx.stroke();
+}
+
+// ---------- controls ----------
+const hold = (id, k) => {
+  const el = $(id);
+  el.addEventListener('pointerdown', e => { e.preventDefault(); held[k] = 1; });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => el.addEventListener(t, () => held[k] = 0));
+};
+hold('bl', 'l'); hold('br', 'r');
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'a') held.l = 1;
+  if (e.key === 'ArrowRight' || e.key === 'd') held.r = 1;
+});
+addEventListener('keyup', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'a') held.l = 0;
+  if (e.key === 'ArrowRight' || e.key === 'd') held.r = 0;
+});
+$('pauseBtn').addEventListener('click', () => {
+  if (G && G.state === 'run') {
+    G.state = 'pause'; held.l = held.r = 0;
+    modal('<h3>PAUSED</h3>' + btn('green', 'resume', 'RESUME') + btn('blue', 'retry', 'RETRY') + btn('grey', 'home', 'HOME'));
+  }
+});
+
+// ---------- hook into menu ----------
+actions.play = () => startLevel(maxLv);
+actions.levels = () => { buildGrid(); show('levels'); };
+actions.resume = () => { G.state = 'run'; $('modal').classList.remove('show'); };
+actions.retry = () => startLevel(cur);
+actions.next = () => startLevel(Math.min(cur + 1, 10));
+actions.home = () => { cancelAnimationFrame(raf); renderHome(); show('home'); };
+document.addEventListener('click', e => {
+  const b = e.target.closest('.lv:not(.lock)');
+  if (b) startLevel(+b.dataset.lv);
+});
+</script>
+</body>
+</html>
